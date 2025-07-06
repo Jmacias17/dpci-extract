@@ -1,9 +1,21 @@
 import React from 'react';
-import { Card } from 'react-bootstrap';
+import { Card, Button} from 'react-bootstrap';
 
-const ImagePreview = ({ image, index }) => {
+
+
+const ImagePreview = ({handleRemoveImage, image, index }) => {
   return (
+    // Card represents a Image Preview based on what is uploaded, Shadow for effect.
     <Card className="shadow-sm">
+      <Card.Header>
+        <Button
+          variant="danger"
+          size="sm"
+          onClick={() => handleRemoveImage(index)}
+        >
+          Delete
+        </Button>
+      </Card.Header>
       <Card.Img
         variant="top"
         src={image.previewUrl}

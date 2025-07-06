@@ -3,59 +3,55 @@ import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import ImagePreview from './ImagePreview';
 
-const ImagePreviewGrid = ({ images, setImages }) => {
+/**
+ * ImagePreviewGrid
+ * Renders a horizontally scrollable, draggable image grid.
+ * @param {Object[]} images - Array of image objects (must contain previewUrl).
+ * @param {Function} setImages - Setter to update image order.
+ */
+const ImagePreviewGrid = ({ handleRemoveImage, images, setImages }) => {
+
+  // Handles item rearrangement when drag ends
   const handleDragEnd = (result) => {
     if (!result.destination) return;
 
-    const updated = Array.from(images);
-    const [moved] = updated.splice(result.source.index, 1);
-    updated.splice(result.destination.index, 0, moved);
-    setImages(updated);
+    const reordered = Array.from(images);
+    const [movedItem] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, movedItem);
+    setImages(reordered);
   };
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <Droppable droppableId="image-grid" direction="horizontal">
-        {(provided) => (
+        {(dropProvided) => (
           <div
-            {...provided.droppableProps}
-            ref={provided.innerRef}
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              flexWrap: 'nowrap',
-              gap: '1rem',
-              overflowX: 'auto',
-              padding: '1rem',
-              WebkitOverflowScrolling: 'touch',
-              scrollBehavior: 'smooth',
-              border: '1px solid #eee',
-              borderRadius: '8px',
-            }}
+            ref={dropProvided.innerRef}
+            {...dropProvided.droppableProps}
+            style={containerStyle}
           >
-            {images.map((img, index) => (
+            {images.map((image, index) => (
               <Draggable
-                key={img.previewUrl}
-                draggableId={img.previewUrl}
+                key={image.previewUrl}
+                draggableId={image.previewUrl}
                 index={index}
               >
-                {(provided) => (
+                {(dragProvided) => (
                   <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
+                    ref={dragProvided.innerRef}
+                    {...dragProvided.draggableProps}
+                    {...dragProvided.dragHandleProps}
                     style={{
-                      ...provided.draggableProps.style,
-                      flex: '0 0 auto',
-                      width: '160px',
+                      ...dragProvided.draggableProps.style,
+                      ...draggableItemStyle,
                     }}
                   >
-                    <ImagePreview image={img} index={index} />
+                    <ImagePreview handleRemoveImage={handleRemoveImage} image={image} index={index} />
                   </div>
                 )}
               </Draggable>
             ))}
-            {provided.placeholder}
+            {dropProvided.placeholder}
           </div>
         )}
       </Droppable>
@@ -64,3 +60,21 @@ const ImagePreviewGrid = ({ images, setImages }) => {
 };
 
 export default ImagePreviewGrid;
+
+const containerStyle = {
+  display: 'flex',
+  flexDirection: 'row',
+  flexWrap: 'nowrap',
+  gap: '1rem',
+  overflowX: 'auto',
+  padding: '1rem',
+  WebkitOverflowScrolling: 'touch',
+  scrollBehavior: 'smooth',
+  border: '1px solid #eee',
+  borderRadius: '8px',
+};
+
+const draggableItemStyle = {
+  flex: '0 0 auto',
+  width: '160px',
+};
