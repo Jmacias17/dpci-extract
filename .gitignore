@@ -6,11 +6,15 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+firebase.js
 
 node_modules
 dist
 dist-ssr
 *.local
+
+#Database Creds [Please use your own if replicating or testing]
+firebase.js
 
 # Editor directories and files
 .vscode/*
