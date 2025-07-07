@@ -4,10 +4,10 @@
 
 ---
 
-## 📚 Table of Contents
+## Table of Contents
 
 - [Live App](#live-app)
-- [Current Version](#current-version-v012--documentation-reset)
+- [Current Features](#current-features)
 - [Tech Stack](#tech-stack)
 - [Roadmap](#roadmap)
 - [Developer Notes](#developer-notes)
@@ -17,7 +17,7 @@
 
 ---
 
-## 🔗 Live App
+## Live App
 
 👉 [Currently Not For Public Use]  
 _No downloads, no logins, and no data storage — everything happens in your browser._
@@ -26,9 +26,7 @@ _No downloads, no logins, and no data storage — everything happens in your bro
 
 ---
 
-## 📦 Current Version `v0.1.2` – Documentation Reset 
-
-### ✅ Current Features:
+### Current Features:
 - **Image Upload** – Add images via file picker or drag-and-drop
 - **Preview Layout** – View uploaded images as paginated cards using Bootstrap
 - **Image Deletion** – Remove individual images before processing
@@ -39,7 +37,7 @@ _No downloads, no logins, and no data storage — everything happens in your bro
 
 ---
 
-## 🧱 Tech Stack
+## Tech Stack
 
 - **Framework**: React (via Vite)
 - **Styling**: React-Bootstrap
@@ -53,7 +51,7 @@ _No downloads, no logins, and no data storage — everything happens in your bro
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
 ### Coming Next:
 - [ ] OCR support for reading DPCI numbers from uploaded images
@@ -64,7 +62,7 @@ _No downloads, no logins, and no data storage — everything happens in your bro
 
 ---
 
-## 👨‍💻 Developer Notes
+## Developer Notes
 
 This app follows solid software engineering principles:
 - Low coupling & high cohesion
@@ -78,7 +76,7 @@ You can extend this project by plugging in OCR, export logic, or minimal backend
 
 ---
 
-## 📄 License
+## License
 
 MIT License © 2025 Jesus Macias
 
@@ -86,7 +84,18 @@ MIT License © 2025 Jesus Macias
 
 ---
 
-## 📌 Changelog Summary 
+## Changelog Summary 
+
+### Version 0.1.4 - ReadMe Table of Contents Fixed
+Changelog:
+* Fixed Table of Contents Links not taking to section specified
+
+
+### Version 0.1.3 - ReadMe File
+Changelog:
+* Reset and restructured all project documentation
+
+
 
 ### Version 0.1.2 – Documentation Reset
 Changelog:
