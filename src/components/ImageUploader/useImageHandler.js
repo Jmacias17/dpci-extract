@@ -1,4 +1,7 @@
 // useImageHandler.js
+// Custom React hook for managing image uploads, preview generation, and state cleanup.
+// Introduced in v0.1.1 ("Image Uploader Complete") to encapsulate logic for handling 
+// file input, image preview URLs, clearing, and single-image removal in the DPCI Extractor App.
 import { useState } from 'react';
 
 /**

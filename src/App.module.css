@@ -1,0 +1,23 @@
+/* App.module.css */
+
+.fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+.centeredWrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to right, #cc0000, #ff1a1a);
+  box-sizing: border-box;
+  overflow-x: hidden;
+  padding: 1rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 600px;
+  padding: 2rem;
+}
