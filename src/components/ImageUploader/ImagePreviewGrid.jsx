@@ -1,23 +1,36 @@
-// ImagePreviewGrid.jsx
+// ImagePreviewGrid.js
+// A resusable component that renders a scrollable and future update layout view of the uploaded images.
+// Each image is draggable for resorting of page order using @hello-pangea/dnd
+// In v0.1.2 "Documentation Reset" css files have been seperated.
 import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import ImagePreview from './ImagePreview';
+import styles from './ImagePreviewGrid.module.css';
 
 /**
  * ImagePreviewGrid
- * Renders a horizontally scrollable, draggable image grid.
- * @param {Object[]} images - Array of image objects (must contain previewUrl).
- * @param {Function} setImages - Setter to update image order.
+ * A horizontally scrollable grid of image cards with drag-and-drop support.
+ *
+ * @param {Object[]} images - List of image objects (each must contain a `previewUrl`).
+ * @param {Function} setImages - Setter to update image list after reordering.
+ * @param {Function} handleRemoveImage - Handler to remove an image from the list.
  */
 const ImagePreviewGrid = ({ handleRemoveImage, images, setImages }) => {
 
-  // Handles item rearrangement when drag ends
+  /**
+   * Handles the reordering of images after a drag-and-drop event.
+   * @param {Object} result - The drag event result from react-beautiful-dnd.
+   */
   const handleDragEnd = (result) => {
+    // Exit early if the item was dropped outside of a valid area
     if (!result.destination) return;
 
+    // Create a shallow copy of the array and update order
     const reordered = Array.from(images);
     const [movedItem] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, movedItem);
+
+    // Update parent state with new image order
     setImages(reordered);
   };
 
@@ -28,7 +41,7 @@ const ImagePreviewGrid = ({ handleRemoveImage, images, setImages }) => {
           <div
             ref={dropProvided.innerRef}
             {...dropProvided.droppableProps}
-            style={containerStyle}
+            className={styles.imageGridContainer}
           >
             {images.map((image, index) => (
               <Draggable
@@ -41,12 +54,13 @@ const ImagePreviewGrid = ({ handleRemoveImage, images, setImages }) => {
                     ref={dragProvided.innerRef}
                     {...dragProvided.draggableProps}
                     {...dragProvided.dragHandleProps}
-                    style={{
-                      ...dragProvided.draggableProps.style,
-                      ...draggableItemStyle,
-                    }}
+                    className={styles.imageDraggable}
                   >
-                    <ImagePreview handleRemoveImage={handleRemoveImage} image={image} index={index} />
+                    <ImagePreview
+                      handleRemoveImage={handleRemoveImage}
+                      image={image}
+                      index={index}
+                    />
                   </div>
                 )}
               </Draggable>
@@ -60,21 +74,3 @@ const ImagePreviewGrid = ({ handleRemoveImage, images, setImages }) => {
 };
 
 export default ImagePreviewGrid;
-
-const containerStyle = {
-  display: 'flex',
-  flexDirection: 'row',
-  flexWrap: 'nowrap',
-  gap: '1rem',
-  overflowX: 'auto',
-  padding: '1rem',
-  WebkitOverflowScrolling: 'touch',
-  scrollBehavior: 'smooth',
-  border: '1px solid #eee',
-  borderRadius: '8px',
-};
-
-const draggableItemStyle = {
-  flex: '0 0 auto',
-  width: '160px',
-};
