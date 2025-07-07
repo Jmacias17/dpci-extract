@@ -1,6 +1,13 @@
+// App.jsx
+// Main application entry point and layout wrapper.
+// Introduced in v0.1.1 ("Image Uploader Complete") as the initial interface 
+// for the DPCI Extractor App, featuring a centered Card layout with gradient 
+// background and the ImageUploader component.
+
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import ImageUploader from './components/ImageUploader';
+import styles from './App.module.css';
 
 /**
  * App Component
@@ -8,9 +15,9 @@ import ImageUploader from './components/ImageUploader';
  */
 function App() {
   return (
-    <div style={styles.fullscreen}>
-      <div style={styles.centeredWrapper}>
-        <Card className="shadow" style={styles.card}>
+    <div className={styles.fullscreen}>
+      <div className={styles.centeredWrapper}>
+        <Card className={`shadow ${styles.card}`}>
           <h2 className="text-center mb-4">📸 DPCI Extractor</h2>
           <ImageUploader onImagesReady={() => {}} />
         </Card>
@@ -20,27 +27,3 @@ function App() {
 }
 
 export default App;
-
-
-//STYLE
-const styles = {
-  fullscreen: {
-    width: '100vw',
-    height: '100vh',
-  },
-  centeredWrapper: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'linear-gradient(to right, #cc0000, #ff1a1a)', // Target red vibe
-    boxSizing: 'border-box',
-    overflowX: 'hidden',
-    padding: '1rem',
-  },
-  card: {
-    width: '100%',
-    maxWidth: '600px',
-    padding: '2rem',
-  },
-};
