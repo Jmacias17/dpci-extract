@@ -15,19 +15,39 @@ const useImageHandler = (onImagesReady) => {
   const [images, setImages] = useState([]);
 
   const handleFileChange = (e) => {
-    // Revoke existing previews
-    images.forEach((img) => URL.revokeObjectURL(img.previewUrl));
-
     const files = Array.from(e.target.files);
-    const newImages = files.map((file, index) => ({
+    e.target.value = null; // <-- resets input for repeat uploads
+
+    const newImageData = files.map((file) => ({
       file,
       previewUrl: URL.createObjectURL(file),
-      pageNumber: index + 1,
     }));
 
-    setImages(newImages);
-    onImagesReady(newImages);
+    setImages((prevImages) => {
+      // Build a Set of existing identifiers
+      const existingKeys = new Set(prevImages.map((img) => `${img.file.name}_${img.file.size}`));
+
+      // Filter new images to only include truly new files
+      const filteredNew = newImageData.filter(
+        (img) => !existingKeys.has(`${img.file.name}_${img.file.size}`)
+      );
+
+      // Set page numbers sequentially
+      const updatedList = [...prevImages, ...filteredNew].map((img, idx) => ({
+        ...img,
+        pageNumber: idx + 1,
+      }));
+
+      // Revoke previews of duplicates (if any)
+      newImageData
+        .filter((img) => existingKeys.has(`${img.file.name}_${img.file.size}`))
+        .forEach((dup) => URL.revokeObjectURL(dup.previewUrl));
+
+      onImagesReady(updatedList);
+      return updatedList;
+    });
   };
+
 
   const handleClear = () => {
     images.forEach((img) => URL.revokeObjectURL(img.previewUrl)); // Clean up object URLs

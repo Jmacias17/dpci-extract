@@ -1,19 +1,21 @@
-/* ImagePreviewGrid.module.css */
-
 .imageGridContainer {
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
   gap: 1rem;
   overflow-x: auto;
-  padding: 1rem;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-  border: 1px solid #eee;
-  border-radius: 8px;
+  padding: 1rem 0;
 }
 
 .imageDraggable {
   flex: 0 0 auto;
-  width: 160px;
+}
+
+.gridDraggableContainer {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: rem;
+  padding: 1rem 0;
+}
+
+.gridDraggableItem {
+  width: 100%;
 }

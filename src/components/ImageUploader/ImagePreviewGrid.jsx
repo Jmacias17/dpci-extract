@@ -1,7 +1,8 @@
 // ImagePreviewGrid.js
-// A resusable component that renders a scrollable and future update layout view of the uploaded images.
-// Each image is draggable for resorting of page order using @hello-pangea/dnd
-// In v0.1.2 "Documentation Reset" css files have been seperated.
+// A reusable component that renders either a scrollable or grid-based view of uploaded images.
+// Includes drag-and-drop support for scrollable layout using @hello-pangea/dnd.
+// In v0.1.2 "Documentation Reset" CSS files have been separated.
+
 import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import ImagePreview from './ImagePreview';
@@ -9,30 +10,43 @@ import styles from './ImagePreviewGrid.module.css';
 
 /**
  * ImagePreviewGrid
- * A horizontally scrollable grid of image cards with drag-and-drop support.
+ * Renders a grid or scrollable row of image cards, optionally draggable.
  *
- * @param {Object[]} images - List of image objects (each must contain a `previewUrl`).
- * @param {Function} setImages - Setter to update image list after reordering.
- * @param {Function} handleRemoveImage - Handler to remove an image from the list.
+ * @param {Object[]} images - List of image objects (must contain a `previewUrl`).
+ * @param {Function} setImages - Setter to update image order after drag/drop.
+ * @param {Function} handleRemoveImage - Removes an image from the list.
+ * @param {string} layout - "scroll" (default) or "grid" for layout style.
  */
-const ImagePreviewGrid = ({ handleRemoveImage, images, setImages }) => {
+const ImagePreviewGrid = ({
+  handleRemoveImage,
+  images,
+  setImages,
+  layout = 'scroll'
+}) => {
 
-  /**
-   * Handles the reordering of images after a drag-and-drop event.
-   * @param {Object} result - The drag event result from react-beautiful-dnd.
-   */
   const handleDragEnd = (result) => {
-    // Exit early if the item was dropped outside of a valid area
     if (!result.destination) return;
-
-    // Create a shallow copy of the array and update order
     const reordered = Array.from(images);
     const [movedItem] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, movedItem);
-
-    // Update parent state with new image order
     setImages(reordered);
   };
+
+  if (layout === 'grid') {
+    return (
+      <div className={styles.gridContainer}>
+        {images.map((image, index) => (
+          <div key={image.previewUrl} className={styles.gridItem}>
+            <ImagePreview
+              handleRemoveImage={handleRemoveImage}
+              image={image}
+              index={index}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
