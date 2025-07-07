@@ -50,7 +50,7 @@ const ImageUploader = ({ onImagesReady }) => {
           />
 
           <div className="mt-3 text-center">
-            <Button variant="primary" size="sm" onClick={handleClear}>
+            <Button variant="danger" size="sm" onClick={handleClear}>
               Clear All
             </Button>
           </div>

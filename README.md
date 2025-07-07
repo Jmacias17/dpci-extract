@@ -86,6 +86,13 @@ MIT License © 2025 Jesus Macias
 
 ## Changelog Summary 
 
+### Version 0.1.5 - File Upload Bug Fixes
+Changelog:
+* Fixed an issue that when adding more files/images after initial upload, the previous files/images would be deleted.
+* Added protection to not allow duplicates of images
+* Files/Images that are deleted can be re-uploaded
+
+
 ### Version 0.1.4 - ReadMe Table of Contents Fixed
 Changelog:
 * Fixed Table of Contents Links not taking to section specified
