@@ -26,9 +26,3 @@ firebase.js
 *.njsproj
 *.sln
 *.sw?
-
-easyocr-backend/*
-!easyocr-backend/app.py
-!easyocr-backend/requirements.txt
-!easyocr-backend/Dockerfile
-!easyocr-backend/ocr_utils.py
