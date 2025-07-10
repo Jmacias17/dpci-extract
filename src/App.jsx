@@ -4,42 +4,74 @@
 // for the DPCI Extractor App, featuring a centered Card layout with gradient 
 // background and the ImageUploader component.
 
+// App.jsx
 import React, { useState } from 'react';
-import { Card, Button, Spinner, ListGroup } from 'react-bootstrap';
+import { Card, Button, Spinner, Table } from 'react-bootstrap';
 import ImageUploader from './components/ImageUploader';
 import styles from './App.module.css';
 import { extractTextFromImage, extractFormattedNumbers } from './services/ocrService';
 
 function App() {
   const [images, setImages] = useState([]); // image objects with file + pageNumber
-  const [dpciResults, setDpciResults] = useState([]);
+  const [dpciResults, setDpciResults] = useState([]); // [{ page, dpciList }]
   const [loading, setLoading] = useState(false);
+  const [hasExtracted, setHasExtracted] = useState(false);
+  const [processingStatus, setProcessingStatus] = useState({}); // { pageNumber: { loading, progress } }
 
   const handleImagesReady = (updatedImages) => {
     setImages(updatedImages);
     setDpciResults([]);
+    setProcessingStatus({});
+    setHasExtracted(false); 
   };
 
-const handleExtractDPCI = async () => {
-  console.log('🚀 Starting OCR on images:', images.map(img => img.file.name));
+  const handleExtractDPCI = async () => {
+    setLoading(true);
+    setHasExtracted(true); 
+    setDpciResults([]);
+    setProcessingStatus({});
 
-  const results = [];
+    const results = [];
+    const total = images.length;
 
-  for (const img of images) {
-    const text = await extractTextFromImage(img.file);
-    const matches = extractFormattedNumbers(text);
+    for (let i = 0; i < total; i++) {
+      const img = images[i];
+      const page = img.pageNumber;
 
-    results.push({
-      page: img.pageNumber,
-      dpciList: matches,
-    });
-  }
+      setProcessingStatus(prev => ({
+        ...prev,
+        [page]: { loading: true, progress: Math.round(((i + 1) / total) * 100) }
+      }));
 
-  console.log('✅ Final Results:', results);
+      const text = await extractTextFromImage(img.file);
+      const matches = extractFormattedNumbers(text);
 
-  setDpciResults(results);
-  setLoading(false);
-};
+      results.push({ page, dpciList: matches });
+
+      setProcessingStatus(prev => ({
+        ...prev,
+        [page]: { loading: false, progress: 100 }
+      }));
+
+      setDpciResults(prev => [...prev, { page, dpciList: matches }]);
+    }
+
+    setLoading(false);
+  };
+
+  const getStatusElement = (status, dpciList) => {
+    if (status?.loading) {
+      return (
+        <>
+          <Spinner animation="border" size="sm" /> {status.progress}%
+        </>
+      );
+    } else if (dpciList?.length > 0) {
+      return <span className="text-success">✅ Done</span>;
+    } else {
+      return <span className="text-muted">❌ No Matches</span>;
+    }
+  };
 
   return (
     <div className={styles.fullscreen}>
@@ -50,7 +82,7 @@ const handleExtractDPCI = async () => {
           <ImageUploader onImagesReady={handleImagesReady} />
 
           {images.length > 0 && (
-            <div className="text-center">
+            <div className="text-center mt-3">
               <Button onClick={handleExtractDPCI} disabled={loading}>
                 {loading ? (
                   <>
@@ -63,19 +95,53 @@ const handleExtractDPCI = async () => {
             </div>
           )}
 
-          {dpciResults.length > 0 && (
-            <div className="mt-4">
+          {hasExtracted && images.length > 0 && (
+            <div className="text-center mt-4">
               <h5>🧠 DPCI Results by Page</h5>
-              <ListGroup>
-                {dpciResults.map((res, idx) => (
-                  <ListGroup.Item key={idx}>
-                    <strong>Page {res.page}:</strong>{' '}
-                    {res.dpciList.length > 0
-                      ? res.dpciList.join(', ')
-                      : 'No DPCI found'}
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
+              <Table
+                responsive
+                bordered
+                className="mt-3 table-sm align-middle text-start"
+                variant="light"
+              >
+                <thead className="table-dark">
+                  <tr>
+                    <th style={{ width: '10%' }}>Page</th>
+                    <th style={{ width: '20%' }}>Status</th>
+                    <th>DPCI(s)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {images.flatMap((img, idx) => {
+                    const page = img.pageNumber;
+                    const status = processingStatus[page];
+                    const result = dpciResults.find(r => r.page === page);
+                    const dpciList = result?.dpciList || [];
+
+                    if (status?.loading || dpciList.length === 0) {
+                      return (
+                        <tr key={`page-${page}`}>
+                          <td><strong>{page}</strong></td>
+                          <td>{getStatusElement(status, dpciList)}</td>
+                          <td>{status?.loading ? '—' : 'No DPCI found'}</td>
+                        </tr>
+                      );
+                    }
+
+                    return dpciList.map((dpci, i) => (
+                      <tr key={`page-${page}-dpci-${i}`}>
+                        {i === 0 && (
+                          <>
+                            <td rowSpan={dpciList.length}><strong>{page}</strong></td>
+                            <td rowSpan={dpciList.length}>{getStatusElement(status, dpciList)}</td>
+                          </>
+                        )}
+                        <td>{dpci}</td>
+                      </tr>
+                    ));
+                  })}
+                </tbody>
+              </Table>
             </div>
           )}
         </Card>
