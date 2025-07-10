@@ -1,7 +1,7 @@
 // OCRProcessor Component 
 import React, { useEffect, useState } from 'react';
 import { Spinner, ListGroup, Alert } from 'react-bootstrap';
-import { extractTextFromImage, extractDPCINumbers } from '../../services/ocrService';
+import { extractTextFromImage } from '../../services/ocrService';
 
 const OCRProcessor = ({ images }) => {
   const [results, setResults] = useState([]);
@@ -11,14 +11,14 @@ const OCRProcessor = ({ images }) => {
     if (!images.length) return;
 
     setLoading(true);
-    console.log("Running...")
+    console.log("🚀 Starting OCR processing...");
+
     const runOCR = async () => {
       const output = [];
 
       for (const img of images) {
-        const text = await extractTextFromImage(img.file);
-        //const dpciList = extractDPCINumbers(text);
-        output.push({ page: img.pageNumber, text });
+        const dpciList = await extractTextFromImage(img.file); // already filtered
+        output.push({ page: img.pageNumber, dpciList });
       }
 
       setResults(output);
@@ -42,7 +42,9 @@ const OCRProcessor = ({ images }) => {
           {results.map((res, idx) => (
             <ListGroup.Item key={idx}>
               <strong>Page {res.page}:</strong>{' '}
-              {res.dpciList.length ? res.dpciList.join(', ') : 'No DPCI found'}
+              {res.dpciList.length > 0
+                ? res.dpciList.join(', ')
+                : 'No DPCI found'}
             </ListGroup.Item>
           ))}
         </ListGroup>
