@@ -100,6 +100,12 @@ MIT License © 2025 Jesus Macias
 
 ## Changelog Summary 
 
+### Version 0.2.2 - OCR Update
+Changelog:
+* Going forward due to privacy, will be making a downloadable exe that setups the app to run on local host and start the backend server so everything can be done locally and nothing is saved, although as it is nothing is being saved
+* Output DPCI text is now accurate due to testing, needs more tweaks on reading mobile photos but jpg and png from the test photos are accurate.
+* Using Canvas to pre-process the photo to allow for better readability.
+
 ### Version 0.2.1 - OCR Processor
 Changelog:
 * Due to issues within v0.2.1-alpha using tesseract not displaying proper results; decided to switch to EasyOCR which upon localhost testing did net the desired results.
