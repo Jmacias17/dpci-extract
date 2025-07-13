@@ -42,8 +42,8 @@ _No downloads, no logins, and no data storage — everything happens in your bro
 
 - **Framework**: React (via Vite)
 - **Styling**: React-Bootstrap
-- **OCR (Coming Soon)**: Tesseract.js (client-side)
-- **Excel Export (Planned)**: SheetJS (xlsx), jsBarcode (barcodes)
+- **OCR**: EasyOCR (Back-end Python Flask)
+- **Excel Export (Up Next)**: SheetJS (xlsx), jsBarcode (barcodes)
 - **Hosting**: Firebase Hosting
 
 > 💡 Note: This app is 100% frontend-only. No database, no API, no backend. Fast and private — your data never leaves your browser.
@@ -55,7 +55,7 @@ _No downloads, no logins, and no data storage — everything happens in your bro
 ## Roadmap
 
 ### Coming Next:
-- [ ] OCR support for reading DPCI numbers from uploaded images
+- [✅] OCR support for reading DPCI numbers from uploaded images
 - [ ] Barcode image generation for each DPCI
 - [ ] Excel export with one sheet per ad page
 
@@ -99,6 +99,10 @@ MIT License © 2025 Jesus Macias
 ### Back End
 
 ## Changelog Summary 
+
+### Version 0.2.3 - Doc Update
+Changelog:
+* Fixed the ReadMe File
 
 ### Version 0.2.2 - OCR Update
 Changelog:
