@@ -4,10 +4,11 @@
 // for the DPCI Extractor App, featuring a centered Card layout with gradient 
 // background and the ImageUploader component.
 
-import React, { useState } from 'react';
-import { Card, Button, Spinner, Alert } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Card, Button, Spinner, Alert, Nav, ProgressBar} from 'react-bootstrap';
 import ImageUploader from './components/ImageUploader';
 import DPCITable from './components/DPCITable';
+import ProgressHandler from './components/ProgressHandler';
 import { useDpciExtraction } from './hooks/useDpciExtraction';
 import styles from './App.module.css';
 
@@ -17,6 +18,7 @@ import styles from './App.module.css';
  */
 function App() {
   const [images, setImages] = useState([]);                // Uploaded image list
+  const [currStage, setCurrStage] = useState('Upload')     // Current Stage of Process
   const [dpciResults, setDpciResults] = useState([]);      // OCR result per image
   const [processingStatus, setProcessingStatus] = useState({}); // Per-page loading/progress
   const [loading, setLoading] = useState(false);           // Global spinner control
@@ -30,6 +32,7 @@ function App() {
    * Resets all relevant state.
    */
   const handleImagesReady = (updatedImages) => {
+    setCurrStage("UploadAck")
     setImages(updatedImages);
     setDpciResults([]);
     setProcessingStatus({});
@@ -57,24 +60,25 @@ function App() {
     }
   };
 
+  // Reset stage to 'Upload' when all images are removed
+  useEffect(() => {
+    if (images.length === 0 && currStage !== 'Upload') {
+      setCurrStage('Upload');
+    }
+  }, [images, currStage]);
+
   return (
     <div className={styles.fullscreen}>
       <div className={styles.centeredWrapper}>
         <Card className={`shadow ${styles.card}`}>
-          <h2 className="text-center mb-4">📸 DPCI Extractor</h2>
+          <h2 className="text-center mb-3">📸 DPCI Extractor</h2>
+          <ProgressHandler currentStage={currStage} />
 
           {/* Image Upload Interface */}
           <ImageUploader
             onImagesReady={handleImagesReady}
             isDraggable={!hasExtracted}
           />
-
-          {/* Error Display */}
-          {error && (
-            <Alert variant="danger" className="mt-3">
-              {error}
-            </Alert>
-          )}
 
           {/* Extract Button (only shown when images exist) */}
           {images.length > 0 && (
@@ -90,6 +94,14 @@ function App() {
               </Button>
             </div>
           )}
+
+          {/* Error Display */}
+          {error && (
+            <Alert variant="danger" className="mt-3">
+              {error}
+            </Alert>
+          )}
+          
 
           {/* DPCI Results Table */}
           {hasExtracted && images.length > 0 && (

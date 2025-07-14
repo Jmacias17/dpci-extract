@@ -100,6 +100,12 @@ MIT License © 2025 Jesus Macias
 
 ## Changelog Summary 
 
+### Version 0.2.5 - Progress Bar
+Changelog:
+* Added a Progress Bar and changed some Front End Design
+* Progress Bar changes based on the current stage process
+* Moving now into product_lookup and Excel conversion.
+
 ### Version 0.2.4 - Project Polish
 Changelog:
 * Fixed Front-End Files to have more docs and comments, also seperated some of the functions to make it more modular.

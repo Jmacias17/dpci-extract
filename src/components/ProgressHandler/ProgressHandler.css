@@ -1,0 +1,6 @@
+/* Outlined text style */
+.outlined-text {
+    color: white;
+    font-weight: bold;
+    -webkit-text-stroke: .6px black;
+}

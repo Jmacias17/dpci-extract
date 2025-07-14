@@ -25,10 +25,10 @@ const ImageUploader = ({ onImagesReady, isDraggable }) => {
   } = useImageHandler(onImagesReady);
 
   return (
-    <Form className="text-center mb-4">
+    <Form className="text-center mt-3">
       {/* 🔼 File Upload Section */}
       <Form.Group controlId="imageUpload" className="mb-3">
-        <Form.Label className="fw-bold">Upload or Capture Images</Form.Label>
+        <Form.Label className="fw-bold">Start By Uploading Images Below</Form.Label>
         <Form.Control
           type="file"
           accept="image/*"
