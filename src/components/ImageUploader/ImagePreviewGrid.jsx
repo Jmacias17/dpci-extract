@@ -1,7 +1,7 @@
-// ImagePreviewGrid.js
-// A reusable component that renders either a scrollable or grid-based view of uploaded images.
-// Includes drag-and-drop support for scrollable layout using @hello-pangea/dnd.
-// In v0.1.2 "Documentation Reset" CSS files have been separated.
+// ImagePreviewGrid.jsx
+// Renders a dynamic grid or scrollable row of image previews with optional drag-and-drop reordering.
+// Supports both static grid and horizontal scroll layout.
+// Introduced drag-and-drop functionality using @hello-pangea/dnd in v0.1.2.
 
 import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
@@ -10,37 +10,49 @@ import styles from './ImagePreviewGrid.module.css';
 
 /**
  * ImagePreviewGrid
- * Renders a grid or scrollable row of image cards, optionally draggable.
  *
- * @param {Object[]} images - List of image objects (must contain a `previewUrl`).
- * @param {Function} setImages - Setter to update image order after drag/drop.
- * @param {Function} handleRemoveImage - Removes an image from the list.
- * @param {string} layout - "scroll" (default) or "grid" for layout style.
+ * @param {Object[]} images - Array of image objects (must contain `previewUrl` and `pageNumber`)
+ * @param {Function} setImages - Updates image order (should re-assign `pageNumber`)
+ * @param {Function} handleRemoveImage - Callback to remove an image
+ * @param {string} layout - 'scroll' (default) or 'grid' layout style
+ * @param {boolean} isDraggable - Enables or disables drag-and-drop
  */
 const ImagePreviewGrid = ({
   handleRemoveImage,
   images,
   setImages,
-  layout = 'scroll'
+  layout = 'scroll',
+  isDraggable = true,
 }) => {
-
+  /**
+   * Handles drag end event to reorder images and update page numbers
+   */
   const handleDragEnd = (result) => {
     if (!result.destination) return;
-    const reordered = Array.from(images);
-    const [movedItem] = reordered.splice(result.source.index, 1);
-    reordered.splice(result.destination.index, 0, movedItem);
-    setImages(reordered);
+
+    const reordered = [...images];
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+
+    // Reassign page numbers to reflect new order
+    const updated = reordered.map((img, index) => ({
+      ...img,
+      pageNumber: index + 1,
+    }));
+
+    setImages(updated);
   };
 
+  // 🔳 Grid layout (non-draggable)
   if (layout === 'grid') {
     return (
       <div className={styles.gridContainer}>
         {images.map((image, index) => (
           <div key={image.previewUrl} className={styles.gridItem}>
             <ImagePreview
-              handleRemoveImage={handleRemoveImage}
               image={image}
               index={index}
+              handleRemoveImage={handleRemoveImage}
             />
           </div>
         ))}
@@ -48,6 +60,25 @@ const ImagePreviewGrid = ({
     );
   }
 
+  // 🧱 Static scroll layout without drag-and-drop
+  if (!isDraggable) {
+    return (
+      <div className={styles.imageGridContainer}>
+        {images.map((image, index) => (
+          <div key={image.previewUrl} className={styles.imageDraggable}>
+            <ImagePreview
+              image={image}
+              index={index}
+              handleRemoveImage={handleRemoveImage}
+              isDraggable={false}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // 🔄 Scrollable layout with drag-and-drop
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <Droppable droppableId="image-grid" direction="horizontal">
@@ -71,9 +102,10 @@ const ImagePreviewGrid = ({
                     className={styles.imageDraggable}
                   >
                     <ImagePreview
-                      handleRemoveImage={handleRemoveImage}
                       image={image}
                       index={index}
+                      handleRemoveImage={handleRemoveImage}
+                      isDraggable={true}
                     />
                   </div>
                 )}

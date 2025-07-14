@@ -4,72 +4,56 @@
 // for the DPCI Extractor App, featuring a centered Card layout with gradient 
 // background and the ImageUploader component.
 
-// App.jsx
 import React, { useState } from 'react';
-import { Card, Button, Spinner, Table } from 'react-bootstrap';
+import { Card, Button, Spinner, Alert } from 'react-bootstrap';
 import ImageUploader from './components/ImageUploader';
+import DPCITable from './components/DPCITable';
+import { useDpciExtraction } from './hooks/useDpciExtraction';
 import styles from './App.module.css';
-import { extractTextFromImage, extractFormattedNumbers } from './services/ocrService';
 
+/**
+ * App Component
+ * Manages image uploads, triggers OCR extraction, and displays DPCI results.
+ */
 function App() {
-  const [images, setImages] = useState([]); // image objects with file + pageNumber
-  const [dpciResults, setDpciResults] = useState([]); // [{ page, dpciList }]
-  const [loading, setLoading] = useState(false);
-  const [hasExtracted, setHasExtracted] = useState(false);
-  const [processingStatus, setProcessingStatus] = useState({}); // { pageNumber: { loading, progress } }
+  const [images, setImages] = useState([]);                // Uploaded image list
+  const [dpciResults, setDpciResults] = useState([]);      // OCR result per image
+  const [processingStatus, setProcessingStatus] = useState({}); // Per-page loading/progress
+  const [loading, setLoading] = useState(false);           // Global spinner control
+  const [hasExtracted, setHasExtracted] = useState(false); // Flag for completed extraction
+  const [error, setError] = useState(null);                // Error messaging
 
+  const { extractFromImages } = useDpciExtraction();
+
+  /**
+   * Callback from ImageUploader when new images are uploaded or reordered.
+   * Resets all relevant state.
+   */
   const handleImagesReady = (updatedImages) => {
     setImages(updatedImages);
     setDpciResults([]);
     setProcessingStatus({});
-    setHasExtracted(false); 
+    setHasExtracted(false);
+    setError(null);
   };
 
+  /**
+   * Runs OCR extraction on the uploaded images using custom hook logic.
+   */
   const handleExtractDPCI = async () => {
-    setLoading(true);
-    setHasExtracted(true); 
-    setDpciResults([]);
-    setProcessingStatus({});
+    try {
+      setLoading(true);
+      setHasExtracted(true);
+      setDpciResults([]);
+      setProcessingStatus({});
+      setError(null);
 
-    const results = [];
-    const total = images.length;
-
-    for (let i = 0; i < total; i++) {
-      const img = images[i];
-      const page = img.pageNumber;
-
-      setProcessingStatus(prev => ({
-        ...prev,
-        [page]: { loading: true, progress: Math.round(((i + 1) / total) * 100) }
-      }));
-
-      const text = await extractTextFromImage(img.file);
-      const matches = extractFormattedNumbers(text);
-
-      results.push({ page, dpciList: matches });
-
-      setProcessingStatus(prev => ({
-        ...prev,
-        [page]: { loading: false, progress: 100 }
-      }));
-
-      setDpciResults(prev => [...prev, { page, dpciList: matches }]);
-    }
-
-    setLoading(false);
-  };
-
-  const getStatusElement = (status, dpciList) => {
-    if (status?.loading) {
-      return (
-        <>
-          <Spinner animation="border" size="sm" /> {status.progress}%
-        </>
-      );
-    } else if (dpciList?.length > 0) {
-      return <span className="text-success">✅ Done</span>;
-    } else {
-      return <span className="text-muted">❌ No Matches</span>;
+      await extractFromImages(images, setProcessingStatus, setDpciResults);
+    } catch (err) {
+      console.error('❌ DPCI extraction failed:', err);
+      setError('Something went wrong while extracting DPCI numbers. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -79,8 +63,20 @@ function App() {
         <Card className={`shadow ${styles.card}`}>
           <h2 className="text-center mb-4">📸 DPCI Extractor</h2>
 
-          <ImageUploader onImagesReady={handleImagesReady} />
+          {/* Image Upload Interface */}
+          <ImageUploader
+            onImagesReady={handleImagesReady}
+            isDraggable={!hasExtracted}
+          />
 
+          {/* Error Display */}
+          {error && (
+            <Alert variant="danger" className="mt-3">
+              {error}
+            </Alert>
+          )}
+
+          {/* Extract Button (only shown when images exist) */}
           {images.length > 0 && (
             <div className="text-center mt-3">
               <Button onClick={handleExtractDPCI} disabled={loading}>
@@ -95,53 +91,15 @@ function App() {
             </div>
           )}
 
+          {/* DPCI Results Table */}
           {hasExtracted && images.length > 0 && (
             <div className="text-center mt-4">
               <h5>🧠 DPCI Results by Page</h5>
-              <Table
-                responsive
-                bordered
-                className="mt-3 table-sm align-middle text-start"
-                variant="light"
-              >
-                <thead className="table-dark">
-                  <tr>
-                    <th style={{ width: '10%' }}>Page</th>
-                    <th style={{ width: '20%' }}>Status</th>
-                    <th>DPCI(s)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {images.flatMap((img, idx) => {
-                    const page = img.pageNumber;
-                    const status = processingStatus[page];
-                    const result = dpciResults.find(r => r.page === page);
-                    const dpciList = result?.dpciList || [];
-
-                    if (status?.loading || dpciList.length === 0) {
-                      return (
-                        <tr key={`page-${page}`}>
-                          <td><strong>{page}</strong></td>
-                          <td>{getStatusElement(status, dpciList)}</td>
-                          <td>{status?.loading ? '—' : 'No DPCI found'}</td>
-                        </tr>
-                      );
-                    }
-
-                    return dpciList.map((dpci, i) => (
-                      <tr key={`page-${page}-dpci-${i}`}>
-                        {i === 0 && (
-                          <>
-                            <td rowSpan={dpciList.length}><strong>{page}</strong></td>
-                            <td rowSpan={dpciList.length}>{getStatusElement(status, dpciList)}</td>
-                          </>
-                        )}
-                        <td>{dpci}</td>
-                      </tr>
-                    ));
-                  })}
-                </tbody>
-              </Table>
+              <DPCITable
+                images={images}
+                dpciResults={dpciResults}
+                processingStatus={processingStatus}
+              />
             </div>
           )}
         </Card>

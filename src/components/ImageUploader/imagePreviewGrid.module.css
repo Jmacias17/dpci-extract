@@ -1,19 +1,41 @@
 /* ImagePreviewGrid.module.css */
+/* Styles for the image preview grid and scrollable drag container */
 
+/* Horizontal scroll container for image cards (used in draggable mode) */
 .imageGridContainer {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 1.25rem;
+  gap: 1.25rem; /* Spacing between cards */
   overflow-x: auto;
-  padding: .25rem;
+  padding: 0.25rem;
+
+  /* Smooth touch scrolling for mobile */
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
+
+  /* Light border and rounding for aesthetics */
   border: 1px solid #eee;
   border-radius: 8px;
+
+  /* Optional: Add background for visibility */
+  background-color: #fafafa;
 }
 
+/* Each draggable image card wrapper */
 .imageDraggable {
-  flex: 0 0 auto;
+  flex: 0 0 auto; /* Prevent shrinking and ensure consistent width */
   width: 140px;
+}
+
+/* Optional: Used for static grid layout (if layout="grid" is used) */
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+.gridItem {
+  width: 100%;
 }

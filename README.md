@@ -100,7 +100,15 @@ MIT License © 2025 Jesus Macias
 
 ## Changelog Summary 
 
-### Version 0.2.3 - Doc Update
+### Version 0.2.4 - Project Polish
+Changelog:
+* Fixed Front-End Files to have more docs and comments, also seperated some of the functions to make it more modular.
+* Hooks Folder was created and given useDPCIExtraction-used to connect to back-end to send images one at a time for OCR process and update main application based on results
+* Added the table component with UI from the App.jsx file to have seperation of concerns
+* Changed the back-end which isn't included in github files for privacy reasons but now different routes for DPCI-extract and product-info-lookup, the original master that does both is still included.
+* This version has setup the project for the next major update of the product info lookup which will be a private feature as it requires browser lookup; upon finalizing that the excel feature will be added.
+
+### Version 0.2.3 - ReadMe Refresh
 Changelog:
 * Fixed the ReadMe File
 

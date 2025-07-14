@@ -1,37 +1,38 @@
 // ImageUploader.jsx
-// Handles image input, preview display, and drag-and-drop reordering.
+// Main upload interface for the DPCI Extractor App.
+// Handles file input, displays preview cards, and supports optional drag-and-drop reordering.
 // Introduced in v0.1.1 ("Image Uploader Complete") as the main upload interface 
-// for the DPCI Extractor App, featuring multi-image support and integration 
-// with the ImagePreviewGrid component.
+
 import React from 'react';
 import { Form, Button } from 'react-bootstrap';
 import useImageHandler from './useImageHandler';
 import ImagePreviewGrid from './ImagePreviewGrid';
 
 /**
- * ImageUploader Component
- * Handles image input, preview display, and drag-and-drop reordering.
+ * @component ImageUploader
+ * @description Uploads image files, renders previews, and supports reordering if enabled.
  *
- * @param {Function} onImagesReady - Callback to pass processed image data back to parent.
+ * @param {Function} onImagesReady - Callback to return updated image list (with page numbers) to parent
+ * @param {boolean} isDraggable - Whether drag-and-drop reordering is enabled
  */
-const ImageUploader = ({ onImagesReady }) => {
+const ImageUploader = ({ onImagesReady, isDraggable }) => {
   const {
     images,
     handleFileChange,
     handleRemoveImage,
     handleClear,
-    setImages,
+    setImages, // passed to preview grid for drag ordering
   } = useImageHandler(onImagesReady);
 
   return (
     <Form className="text-center mb-4">
-      {/* File Upload Section */}
+      {/* 🔼 File Upload Section */}
       <Form.Group controlId="imageUpload" className="mb-3">
         <Form.Label className="fw-bold">Upload or Capture Images</Form.Label>
         <Form.Control
           type="file"
-          multiple
           accept="image/*"
+          multiple
           onChange={handleFileChange}
         />
         <Form.Text className="p-2" muted>
@@ -39,21 +40,25 @@ const ImageUploader = ({ onImagesReady }) => {
         </Form.Text>
       </Form.Group>
 
-      {/* Preview & Controls */}
+      {/* 🖼️ Previews & Controls */}
       {images.length > 0 && (
         <>
           <h5 className="mt-4">🖼️ Previews & Page Numbers</h5>
           <ImagePreviewGrid
-            handleRemoveImage={handleRemoveImage}
             images={images}
             setImages={setImages}
+            handleRemoveImage={handleRemoveImage}
+            isDraggable={isDraggable}
           />
 
-          <div className="mt-3 text-center">
-            <Button variant="danger" size="sm" onClick={handleClear}>
-              Clear All
-            </Button>
-          </div>
+          {/* ❌ Clear All button (only when drag is enabled) */}
+          {isDraggable && (
+            <div className="mt-3">
+              <Button variant="danger" size="sm" onClick={handleClear}>
+                Clear All
+              </Button>
+            </div>
+          )}
         </>
       )}
     </Form>

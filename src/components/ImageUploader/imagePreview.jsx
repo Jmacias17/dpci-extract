@@ -1,42 +1,47 @@
-// ImagePreview.js
-// A reusable component that renders a preview card for an uploaded image,
-// with a delete button and page number label.
+// ImagePreview.jsx
+// A reusable card component that displays an uploaded image preview,
+// shows its current page number, and optionally includes a delete button.
 // Part of the v0.1.1 "Image Uploader Complete" milestone for the DPCI Extractor App.
+
 import React from 'react';
 import { Card, Button } from 'react-bootstrap';
 
 /**
  * @component ImagePreview
- * @description Renders an individual image preview card with delete functionality.
- * @param {Function} handleRemoveImage - Callback function to remove the image at a specific index.
- * @param {Object} image - Image object that includes a previewUrl key.
- * @param {number} index - Position of the image in the uploaded list.
+ * @description Displays a single image card with its preview, page number, and delete button.
+ * @param {Object} props
+ * @param {boolean} props.isDraggable - Whether image can be reordered (enables delete button).
+ * @param {Function} props.handleRemoveImage - Function to remove image by index.
+ * @param {Object} props.image - Image object (must include previewUrl and pageNumber).
+ * @param {number} props.index - Position of the image in the array (used only for removal).
  */
-const ImagePreview = ({ handleRemoveImage, image, index }) => {
+const ImagePreview = ({ isDraggable, handleRemoveImage, image, index }) => {
   return (
-    // Display uploaded image in a styled Bootstrap card with shadow for visual depth
     <Card className="shadow-sm">
+      {/* Header with delete button (only when draggable) */}
       <Card.Header>
-        <Button
-          variant="danger"
-          size="sm"
-          onClick={() => handleRemoveImage(index)}
-        >
-          Delete
-        </Button>
+        {isDraggable && (
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={() => handleRemoveImage(index)}
+          >
+            Delete
+          </Button>
+        )}
       </Card.Header>
 
+      {/* Image preview with consistent sizing */}
       <Card.Img
         variant="top"
         src={image.previewUrl}
-        alt={`Image ${index + 1}`}
-        // Fixed height for consistent layout; 'cover' ensures full fill while maintaining aspect ratio
+        alt={`Uploaded preview ${image.pageNumber}`}
         style={{ height: '160px', objectFit: 'cover' }}
       />
 
+      {/* Footer with current page number */}
       <Card.Body className="text-center py-2">
-        {/* Display image page number starting from 1 */}
-        <strong>Page: {index + 1}</strong>
+        <strong>Page: {image.pageNumber}</strong>
       </Card.Body>
     </Card>
   );

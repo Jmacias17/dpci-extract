@@ -1,22 +1,30 @@
 // useImageHandler.js
-// Custom React hook for managing image uploads, preview generation, and state cleanup.
+// Custom hook for managing image uploads, preview generation, page assignment, and cleanup.
 // Introduced in v0.1.1 ("Image Uploader Complete") to encapsulate logic for handling 
-// file input, image preview URLs, clearing, and single-image removal in the DPCI Extractor App.
+// Used in the DPCI Extractor App to provide drag-and-drop-ready image handling.
+
 import { useState } from 'react';
 
 /**
  * useImageHandler
- * Custom hook for managing image upload, preview generation, and page ordering.
- * 
- * @param {Function} onImagesReady - Callback to send updated image list to parent
- * @returns {Object} handlers and image state
+ * Manages uploaded image state, including file input, preview URL creation,
+ * page number assignment, cleanup, and drag-based reordering.
+ *
+ * @param {Function} onImagesReady - Callback to send updated image list (with page numbers) to parent
+ * @returns {Object} Image state and handlers
  */
 const useImageHandler = (onImagesReady) => {
   const [images, setImages] = useState([]);
 
+  /**
+   * Handles new file uploads from <input type="file" />
+   * - Prevents duplicate uploads
+   * - Assigns sequential page numbers
+   * - Creates local preview URLs
+   */
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    e.target.value = null; // <-- resets input for repeat uploads
+    e.target.value = null; // Allow re-uploading the same file
 
     const newImageData = files.map((file) => ({
       file,
@@ -24,40 +32,34 @@ const useImageHandler = (onImagesReady) => {
     }));
 
     setImages((prevImages) => {
-      // Build a Set of existing identifiers
-      const existingKeys = new Set(prevImages.map((img) => `${img.file.name}_${img.file.size}`));
+      const existingKeys = new Set(
+        prevImages.map((img) => `${img.file.name}_${img.file.size}`)
+      );
 
-      // Filter new images to only include truly new files
-      const filteredNew = newImageData.filter(
+      // Only keep files that aren’t duplicates
+      const uniqueNew = newImageData.filter(
         (img) => !existingKeys.has(`${img.file.name}_${img.file.size}`)
       );
 
-      // Set page numbers sequentially
-      const updatedList = [...prevImages, ...filteredNew].map((img, idx) => ({
-        ...img,
-        pageNumber: idx + 1,
-      }));
-
-      // Revoke previews of duplicates (if any)
+      // Revoke previews for duplicates (cleanup)
       newImageData
         .filter((img) => existingKeys.has(`${img.file.name}_${img.file.size}`))
         .forEach((dup) => URL.revokeObjectURL(dup.previewUrl));
+
+      // Merge and assign page numbers
+      const updatedList = [...prevImages, ...uniqueNew].map((img, idx) => ({
+        ...img,
+        pageNumber: idx + 1,
+      }));
 
       onImagesReady(updatedList);
       return updatedList;
     });
   };
 
-
-  const handleClear = () => {
-    images.forEach((img) => URL.revokeObjectURL(img.previewUrl)); // Clean up object URLs
-    setImages([]);
-    onImagesReady([]);
-  };
-
   /**
    * Removes a single image by index.
-   * Revokes its object URL and updates state.
+   * Cleans up preview URL and updates page numbers.
    */
   const handleRemoveImage = (index) => {
     const updated = [...images];
@@ -67,16 +69,44 @@ const useImageHandler = (onImagesReady) => {
       URL.revokeObjectURL(removed.previewUrl);
     }
 
-    setImages(updated);
-    onImagesReady(updated);
+    const reindexed = updated.map((img, idx) => ({
+      ...img,
+      pageNumber: idx + 1,
+    }));
+
+    setImages(reindexed);
+    onImagesReady(reindexed);
+  };
+
+  /**
+   * Clears all images and revokes preview URLs.
+   */
+  const handleClear = () => {
+    images.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+    setImages([]);
+    onImagesReady([]);
+  };
+
+  /**
+   * Safe setter for images.
+   * Ensures correct page ordering and notifies parent component.
+   * Used for drag-and-drop reordering via setImages prop.
+   */
+  const safeSetImages = (newImages) => {
+    const updatedList = newImages.map((img, idx) => ({
+      ...img,
+      pageNumber: idx + 1,
+    }));
+    setImages(updatedList);
+    onImagesReady(updatedList);
   };
 
   return {
     images,
-    setImages, // (optional) exposed for direct control if needed
+    setImages: safeSetImages,
     handleFileChange,
+    handleRemoveImage,
     handleClear,
-    handleRemoveImage, // <- new function
   };
 };
 
