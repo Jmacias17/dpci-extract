@@ -100,6 +100,14 @@ MIT License © 2025 Jesus Macias
 
 ## Changelog Summary 
 
+### Version 0.2.7 - Backend Hosting Textv2
+Changelog:
+* Changed Docker file and app to reflect what is needed for Render
+
+### Version 0.2.6 - Backend Hosting Test
+Changelog:
+* Allowed the ocr_utils file to be on repo in efforts to fix render deploy
+
 ### Version 0.2.5 - Progress Bar
 Changelog:
 * Added a Progress Bar and changed some Front End Design
