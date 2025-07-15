@@ -1,6 +1,7 @@
 # ----------------------------------------
 # 📦 Flask API for DPCI Extraction & Product Lookup
 # ----------------------------------------
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from ocr_utils import extract_dpci_from_image, get_product_info

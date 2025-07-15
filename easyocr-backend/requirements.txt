@@ -18,3 +18,5 @@ requests
 # --- Selenium & WebDriver ---
 selenium
 webdriver-manager
+
+gunicorn

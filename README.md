@@ -100,6 +100,12 @@ MIT License © 2025 Jesus Macias
 
 ## Changelog Summary 
 
+### Version 0.2.8 - Final Backend Test
+Changelog:
+* Correct DockerFile
+* Fixed app.py, missing import
+* added a missing requirement
+
 ### Version 0.2.7 - Backend Hosting Textv2
 Changelog:
 * Changed Docker file and app to reflect what is needed for Render
