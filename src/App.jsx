@@ -10,6 +10,7 @@ import ImageUploader from './components/ImageUploader';
 import DPCITable from './components/DPCITable';
 import ProgressHandler from './components/ProgressHandler';
 import { useDpciExtraction } from './hooks/useDpciExtraction';
+import { exportDPCIsToExcel } from './utils/excelUtils';
 import styles from './App.module.css';
 
 /**
@@ -67,6 +68,26 @@ function App() {
     }
   }, [images, currStage]);
 
+  useEffect(() => {
+    if (hasExtracted) {
+      setCurrStage('Extract');
+    }
+    if (dpciResults.length > 0) {
+      setCurrStage('ExtractAck')
+    }
+
+    const firstKey = Object.keys(processingStatus)[0];
+    if (!firstKey) return; // empty object
+
+    const firstEntry = processingStatus[firstKey];
+
+    if (firstEntry.progress === 100) {
+      setCurrStage("Convert")
+    }
+
+    
+  }, [hasExtracted, dpciResults]);
+
   return (
     <div className={styles.fullscreen}>
       <div className={styles.centeredWrapper}>
@@ -83,13 +104,19 @@ function App() {
           {/* Extract Button (only shown when images exist) */}
           {images.length > 0 && (
             <div className="text-center mt-3">
-              <Button onClick={handleExtractDPCI} disabled={loading}>
+              <Button
+                variant={dpciResults.length > 0 && !hasExtracted? 'success' : 'primary'}
+                onClick={dpciResults.length > 0 ? () => exportDPCIsToExcel(setCurrStage, dpciResults) : handleExtractDPCI}
+                disabled={loading}
+              >
                 {loading ? (
                   <>
                     <Spinner animation="border" size="sm" /> Extracting...
                   </>
+                ) : dpciResults.length > 0 ? (
+                  'Convert To Excel'
                 ) : (
-                  'Extract DPCI from Pages'
+                  'Extract DPCI List'
                 )}
               </Button>
             </div>

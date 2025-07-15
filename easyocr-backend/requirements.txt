@@ -1,5 +1,20 @@
-flask
+# --- Flask API ---
+Flask
 flask-cors
+
+# --- Image Processing & OCR ---
 easyocr
-pillow
-torch
+opencv-python-headless
+numpy
+Pillow
+
+# --- Barcode Generation ---
+python-barcode
+
+# --- Web Scraping & Parsing ---
+beautifulsoup4
+requests
+
+# --- Selenium & WebDriver ---
+selenium
+webdriver-manager
