@@ -100,6 +100,17 @@ MIT License © 2025 Jesus Macias
 
 ## Changelog Summary 
 
+### Version 0.3.1 Excel / Back-end Hosted
+Changelog:
+* This is one step in the right direction. This Version 0.3.x will focus on polishing the speed and reliability of the OCR extract and being able to route that to the front-end with the results using the back-end hosting.
+* Back-end hosting and local hosting are working but getting better results through local-host will continue to update into the code to optimize results.
+* Front-end is now live on a testing site(Still private as this is external project)
+* Removed certain files by using .gitignore to reduce API keys and the back-end hosting link.
+* Added a function to do multi-images instead of singular when testing on localhost did net a faster result but now as much time to fully integrate.
+* Added the excel downloadable file by using the results given from the images to populate an excel file.
+* Added the product lookup info but isn't accessible as its still in testing phase will be for release of 0.4.x
+* Progress bar updates and progress of the DPCI Table updates as results are being delivered.
+
 ### Version 0.2.8 - Final Backend Test
 Changelog:
 * Correct DockerFile

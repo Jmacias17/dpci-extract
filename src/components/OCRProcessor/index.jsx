@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Spinner, ListGroup, Alert } from 'react-bootstrap';
-import { extractTextFromImage } from '../../services/ocrService';
+import { extractTextFromImage, extractTextFromImages } from '../../services/ocrService';
 
 /**
  * OCRProcessor
@@ -15,36 +15,6 @@ import { extractTextFromImage } from '../../services/ocrService';
 const OCRProcessor = ({ images }) => {
   const [results, setResults] = useState([]);   // Holds extracted DPCI results
   const [loading, setLoading] = useState(false); // Tracks OCR loading state
-
-  useEffect(() => {
-    if (!images.length) return;
-
-    setLoading(true);
-    console.log("🚀 Starting OCR processing...");
-
-    const runOCR = async () => {
-      const output = [];
-
-      for (const img of images) {
-        const productInfoList = await extractTextFromImage(img.file); // Should return array of { dpci }
-
-        // Extract DPCI entries and include associated page number
-        for (const product of productInfoList) {
-          if (product.dpci) {
-            output.push({
-              dpci: product.dpci,
-              page: img.pageNumber,
-            });
-          }
-        }
-      }
-
-      setResults(output);
-      setLoading(false);
-    };
-
-    runOCR();
-  }, [images]);
 
   // 🔄 Show spinner while processing
   if (loading) {

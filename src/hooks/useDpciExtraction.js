@@ -9,25 +9,27 @@ import { extractTextFromImage } from '../services/ocrService';
  * Provides a function to extract DPCI numbers from uploaded images using OCR.
  * Handles per-image progress tracking and page-based grouping.
  *
- * @returns {Object} extractFromImages - Function to run OCR on all images
+ * @returns {{ extractFromImages: Function }}
  */
 export const useDpciExtraction = () => {
   /**
    * extractFromImages
-   * Iterates over each image, extracts DPCI list, and maps results to page numbers.
+   * Iterates over each image, calls backend OCR endpoint, and maps results to page numbers.
    *
-   * @param {Object[]} images - Array of image objects with `.file` and `.pageNumber`
-   * @param {Function} setProcessingStatus - Callback to update loading/progress state per page
-   * @param {Function} setDpciResults - Callback to store OCR results [{ page, dpciList }]
+   * @param {Object[]} images - Array of image objects with `.file` and `.pageNumber`.
+   * @param {Function} setProcessingStatus - Updates loading/progress state per page.
+   * @param {Function} setDpciResults - Stores OCR results as [{ page, dpciList }].
    */
   const extractFromImages = async (images, setProcessingStatus, setDpciResults) => {
+    if (!images || images.length === 0) return;
+
     const total = images.length;
 
     for (let i = 0; i < total; i++) {
       const img = images[i];
       const page = img.pageNumber;
 
-      // 🔄 Mark this page as loading
+      // 🔄 Mark this page as loading with progress
       setProcessingStatus(prev => ({
         ...prev,
         [page]: {
@@ -36,27 +38,51 @@ export const useDpciExtraction = () => {
         },
       }));
 
-      // 🧠 Perform OCR
-      const matches = await extractTextFromImage(img.file); // should return an array of dpci strings
+      try {
+        // 🧠 Perform OCR on this single image
+        const matches = await extractTextFromImage(img.file);
 
-      // ✅ Save results for this page
-      setDpciResults(prev => [
-        ...prev,
-        {
-          page,
-          dpciList: matches || [], // ensure safe fallback
-          error: matches.error || null,
-        },
-      ]);
+        // ✅ Save results for this page
+        setDpciResults(prev => [
+          ...prev,
+          {
+            page,
+            dpciList: Array.isArray(matches) ? matches : [],
+            error: null,
+          },
+        ]);
 
-      // ✅ Mark this page as complete
-      setProcessingStatus(prev => ({
-        ...prev,
-        [page]: {
-          loading: false,
-          progress: 100,
-        },
-      }));
+        // ✅ Mark this page as complete
+        setProcessingStatus(prev => ({
+          ...prev,
+          [page]: {
+            loading: false,
+            progress: 100,
+          },
+        }));
+      } catch (err) {
+        console.error(`❌ OCR failed for page ${page}:`, err);
+
+        // Mark this page as failed
+        setProcessingStatus(prev => ({
+          ...prev,
+          [page]: {
+            loading: false,
+            progress: 0,
+            error: true,
+          },
+        }));
+
+        // Record an error entry for this page
+        setDpciResults(prev => [
+          ...prev,
+          {
+            page,
+            dpciList: [],
+            error: 'Extraction failed',
+          },
+        ]);
+      }
     }
   };
 

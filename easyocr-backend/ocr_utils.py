@@ -13,8 +13,6 @@ import time
 import cv2
 import numpy as np
 from PIL import Image
-import easyocr
-
 # ----------------------------------------
 # 🧾 Barcode Generation
 # ----------------------------------------
@@ -34,12 +32,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
-
-# ---------------------------------------------
-# Initialize EasyOCR Reader
-# Use GPU if available for faster performance
-# ---------------------------------------------
-reader = easyocr.Reader(['en'], gpu=True)  # Set to False if no CUDA GPU is available
 
 # ---------------------------------------------
 # Regex Pattern: DPCI Format XXX-XX-XXXX
@@ -109,7 +101,7 @@ def clean_and_extract_dpci(text):
 # ---------------------------------------------
 # Main DPCI Extraction Function
 # ---------------------------------------------
-def extract_dpci_from_image(image_bytes):
+def extract_dpci_from_image(image_bytes, reader):
     """
     Main entry: Converts image bytes into DPCI list using EasyOCR.
     Steps:
@@ -121,13 +113,19 @@ def extract_dpci_from_image(image_bytes):
 
     # Load image from byte stream and convert to RGB
     image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
+    # Resize aggressively if still large
+    if image.width > 1700 or image.height > 1700:
+        image.thumbnail((1700, 1700), Image.Resampling.LANCZOS)
+
+    # Now convert to NumPy aray
     image_np = np.array(image)
 
     # Preprocess image for better OCR results
     processed_img = preprocess_image(image_np)
 
     # Run OCR (detail=0 returns only text strings, faster)
-    raw_texts = reader.readtext(processed_img, detail=0)
+    raw_texts = reader.readtext(processed_img, detail=0, width_ths=0.6)
 
     print("Raw OCR Results:", raw_texts)  # Optional: Debug log
 

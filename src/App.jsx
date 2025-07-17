@@ -5,7 +5,7 @@
 // background and the ImageUploader component.
 
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Spinner, Alert, Nav, ProgressBar} from 'react-bootstrap';
+import { Card, Button, Spinner, Alert } from 'react-bootstrap'; // removed unused Nav, ProgressBar
 import ImageUploader from './components/ImageUploader';
 import DPCITable from './components/DPCITable';
 import ProgressHandler from './components/ProgressHandler';
@@ -13,13 +13,22 @@ import { useDpciExtraction } from './hooks/useDpciExtraction';
 import { exportDPCIsToExcel } from './utils/excelUtils';
 import styles from './App.module.css';
 
+// 🔖 Possible stages of the extraction process
+const STAGES = {
+  UPLOAD: 'Upload',
+  UPLOAD_ACK: 'UploadAck',
+  EXTRACT: 'Extract',
+  EXTRACT_ACK: 'ExtractAck',
+  CONVERT: 'Convert',
+};
+
 /**
  * App Component
  * Manages image uploads, triggers OCR extraction, and displays DPCI results.
  */
 function App() {
   const [images, setImages] = useState([]);                // Uploaded image list
-  const [currStage, setCurrStage] = useState('Upload')     // Current Stage of Process
+  const [currStage, setCurrStage] = useState(STAGES.UPLOAD); // Current Stage of Process
   const [dpciResults, setDpciResults] = useState([]);      // OCR result per image
   const [processingStatus, setProcessingStatus] = useState({}); // Per-page loading/progress
   const [loading, setLoading] = useState(false);           // Global spinner control
@@ -33,7 +42,7 @@ function App() {
    * Resets all relevant state.
    */
   const handleImagesReady = (updatedImages) => {
-    setCurrStage("UploadAck")
+    setCurrStage(STAGES.UPLOAD_ACK);
     setImages(updatedImages);
     setDpciResults([]);
     setProcessingStatus({});
@@ -63,39 +72,39 @@ function App() {
 
   // Reset stage to 'Upload' when all images are removed
   useEffect(() => {
-    if (images.length === 0 && currStage !== 'Upload') {
-      setCurrStage('Upload');
+    if (images.length === 0 && currStage !== STAGES.UPLOAD) {
+      setCurrStage(STAGES.UPLOAD);
     }
   }, [images, currStage]);
 
+  // Update stages based on extraction and processing status
   useEffect(() => {
     if (hasExtracted) {
-      setCurrStage('Extract');
+      setCurrStage(STAGES.EXTRACT);
     }
     if (dpciResults.length > 0) {
-      setCurrStage('ExtractAck')
+      setCurrStage(STAGES.EXTRACT_ACK);
     }
 
     const firstKey = Object.keys(processingStatus)[0];
-    if (!firstKey) return; // empty object
+    if (!firstKey) return; // no entries yet
 
     const firstEntry = processingStatus[firstKey];
-
     if (firstEntry.progress === 100) {
-      setCurrStage("Convert")
+      setCurrStage(STAGES.CONVERT);
     }
-
-    
-  }, [hasExtracted, dpciResults]);
+  }, [hasExtracted, dpciResults, processingStatus]);
 
   return (
     <div className={styles.fullscreen}>
       <div className={styles.centeredWrapper}>
         <Card className={`shadow ${styles.card}`}>
           <h2 className="text-center mb-3">📸 DPCI Extractor</h2>
+
+          {/* Displays the current processing stage */}
           <ProgressHandler currentStage={currStage} />
 
-          {/* Image Upload Interface */}
+          {/* ImageUploader: Handles drag-and-drop and image selection */}
           <ImageUploader
             onImagesReady={handleImagesReady}
             isDraggable={!hasExtracted}
@@ -105,8 +114,14 @@ function App() {
           {images.length > 0 && (
             <div className="text-center mt-3">
               <Button
-                variant={dpciResults.length > 0 && !hasExtracted? 'success' : 'primary'}
-                onClick={dpciResults.length > 0 ? () => exportDPCIsToExcel(setCurrStage, dpciResults) : handleExtractDPCI}
+                // ✅ If we already have results, clicking will export them to Excel.
+                // ✅ Otherwise, clicking will trigger OCR extraction.
+                variant={dpciResults.length > 0 && !hasExtracted ? 'success' : 'primary'}
+                onClick={
+                  dpciResults.length > 0
+                    ? () => exportDPCIsToExcel(setCurrStage, dpciResults)
+                    : handleExtractDPCI
+                }
                 disabled={loading}
               >
                 {loading ? (
@@ -128,7 +143,6 @@ function App() {
               {error}
             </Alert>
           )}
-          
 
           {/* DPCI Results Table */}
           {hasExtracted && images.length > 0 && (

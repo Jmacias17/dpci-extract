@@ -2,48 +2,52 @@ import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 
 /**
- * Formats current datetime as YYYY-MM-DD_HH-MM
+ * 📅 getTimestamp
+ * Formats the current datetime as `YYYY-MM-DD_HH-MM`
+ * for use in the exported file name.
  */
 const getTimestamp = () => {
   const now = new Date();
   const pad = (n) => n.toString().padStart(2, '0');
-  const year = now.getFullYear();
-  const month = pad(now.getMonth() + 1);
-  const day = pad(now.getDate());
-  const hours = pad(now.getHours());
-  const minutes = pad(now.getMinutes());
-  return `${year}-${month}-${day}_${hours}-${minutes}`;
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
 };
 
 /**
- * Exports DPCI results to a styled Excel file, grouped by page number.
- * @param {Array} dpciResults - Array of { page: number, dpciList: string[] }
+ * 📦 exportDPCIsToExcel
+ * Creates a styled Excel file where each worksheet represents a page
+ * and each row lists the extracted DPCIs with an index.
+ *
+ * @param {Function} setCurrentStage - Function to update the app stage
+ * @param {Array<{page: number, dpciList: string[]}>} dpciResults - Extraction results grouped by page
  */
 export const exportDPCIsToExcel = async (setCurrentStage, dpciResults) => {
-  setCurrentStage("ConvertAck");
+  // Update stage to indicate conversion is starting
+  setCurrentStage('ConvertAck');
+
+  // Initialize workbook metadata
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'DPCI Extractor';
   workbook.created = new Date();
 
+  // Create a worksheet per page of results
   dpciResults.forEach(({ page, dpciList }) => {
     const worksheet = workbook.addWorksheet(`Page ${page}`);
 
+    // Define columns: index and DPCI
     worksheet.columns = [
       { header: '#', key: 'index', width: 10 },
       { header: 'DPCI', key: 'dpci', width: 20 },
     ];
 
+    // Fill rows with DPCI data
     dpciList.forEach((dpci, i) => {
       worksheet.addRow({ index: i + 1, dpci });
     });
 
+    // Style header row
     worksheet.getRow(1).eachCell((cell) => {
       cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF000000' },
-      };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF000000' } };
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
       cell.border = {
         top: { style: 'thin' },
@@ -53,8 +57,9 @@ export const exportDPCIsToExcel = async (setCurrentStage, dpciResults) => {
       };
     });
 
+    // Style data rows
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber === 1) return;
+      if (rowNumber === 1) return; // skip header
       row.eachCell((cell) => {
         cell.alignment = { vertical: 'middle', horizontal: 'left' };
         cell.border = {
@@ -67,6 +72,7 @@ export const exportDPCIsToExcel = async (setCurrentStage, dpciResults) => {
     });
   });
 
+  // Export to buffer and trigger download
   const timestamp = getTimestamp();
   const buffer = await workbook.xlsx.writeBuffer();
   const blob = new Blob([buffer], {
