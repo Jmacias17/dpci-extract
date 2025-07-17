@@ -100,7 +100,15 @@ MIT License © 2025 Jesus Macias
 
 ## Changelog Summary 
 
-### Version 0.3.1 Excel / Back-end Hosted
+### Version 0.3.3 - Update ReadMe
+Changelog: 
+* Updated the ReadMe
+
+### Version 0.3.2 - Removal Of Back-End Public Access
+Changelog: 
+* Removing the file, adding into .gitignore so the back-end hosting link isn't exposed.
+
+### Version 0.3.1 - Excel / Back-end Hosted
 Changelog:
 * This is one step in the right direction. This Version 0.3.x will focus on polishing the speed and reliability of the OCR extract and being able to route that to the front-end with the results using the back-end hosting.
 * Back-end hosting and local hosting are working but getting better results through local-host will continue to update into the code to optimize results.
