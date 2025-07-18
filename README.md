@@ -95,10 +95,23 @@ MIT License © 2025 Jesus Macias
     * react-bootstrap": "^2.10.10",
     * react-dom": "^19.1.0",
     * xlsx": "^0.18.5"
+    * @popperjs/core": "^2.11.8",
+    * exceljs": "^4.4.0",
+    * file-saver": "^2.0.5",
+    * pica": "^9.0.1",
 
 ### Back End
+    * Will be updating soon..
 
-## Changelog Summary 
+## Changelog 
+ 
+### Version 0.3.5 - Updated ReadMe
+Changelog: 
+* Updated the ReadMe
+
+### Version 0.3.4 - Front End Scaling
+Changelog:
+* Added a front end file called resizeImage.js - This now gets the image uploaded and scales it if too small and gets the borders in black and yellow background for easier and faster extraction.
 
 ### Version 0.3.3 - Update ReadMe
 Changelog: 
