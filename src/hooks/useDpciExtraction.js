@@ -3,6 +3,7 @@
 // Sends images one-by-one to the backend, tracks progress, and collects DPCI results.
 
 import { extractTextFromImage } from '../services/ocrService';
+import { resizeImage } from '../utils/resizeImage';
 
 /**
  * useDpciExtraction
@@ -39,18 +40,39 @@ export const useDpciExtraction = () => {
       }));
 
       try {
-        // 🧠 Perform OCR on this single image
-        const matches = await extractTextFromImage(img.file);
+        // ✨ Resize before sending
+        const resizedFile = await resizeImage(img.file, 2000, 2000, false, true);
+
+        // ✅ If no yellow regions found, skip OCR and mark as no result
+        if (!resizedFile) {
+          console.warn(`⚠️ No yellow regions found for page ${page}, skipping OCR.`);
+
+          setProcessingStatus(prev => ({
+            ...prev,
+            [page]: {
+              loading: false,
+              progress: 100,
+              warning: 'No yellow regions detected',
+            },
+          }));
+
+          setDpciResults(prev => [
+            ...prev,
+            {
+              page,
+              dpciList: [],
+              warning: 'No yellow regions detected',
+            },
+          ]);
+
+          continue; // move to the next image
+        }
+
+        // ✅ Send to OCR only if we have a valid processed file
+        const matches = await extractTextFromImage(resizedFile);
 
         // ✅ Save results for this page
-        setDpciResults(prev => [
-          ...prev,
-          {
-            page,
-            dpciList: Array.isArray(matches) ? matches : [],
-            error: null,
-          },
-        ]);
+        setDpciResults(prev => [...prev, { page: img.pageNumber, dpciList: matches }]);
 
         // ✅ Mark this page as complete
         setProcessingStatus(prev => ({
@@ -85,6 +107,5 @@ export const useDpciExtraction = () => {
       }
     }
   };
-
   return { extractFromImages };
-};
+}
